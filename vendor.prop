@@ -134,11 +134,6 @@ vendor.camera.skip_unconfigure.packagelist=com.oneplus.camera
 ro.soc.manufacturer=QTI
 ro.soc.model=SM7250
 
-# Crypto
-ro.crypto.dm_default_key.options_format.version=2
-ro.crypto.volume.filenames_mode=aes-256-cts
-ro.crypto.volume.metadata.method=dm-default-key
-
 # Display
 vendor.display.disable_hw_recovery_dump=1
 vendor.display.disable_offline_rotator=1
