@@ -46,8 +46,4 @@ void vendor_load_properties() {
         default:
             LOG(ERROR) << "Unexpected RF version: " << rf_version;
     }
-    
-    if (std::string content; ReadFileToString("/proc/devinfo/ddr_type", &content)) {
-        OverrideProperty("ro.boot.ddr_type", Split(Trim(content), "\t").back().c_str());
-    }
 }
