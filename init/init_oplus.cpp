@@ -50,12 +50,4 @@ void vendor_load_properties() {
     if (std::string content; ReadFileToString("/proc/devinfo/ddr_type", &content)) {
         OverrideProperty("ro.boot.ddr_type", Split(Trim(content), "\t").back().c_str());
     }
-    
-    // Infinity-X Properties
-    OverrideProperty("ro.infinity.maintainer", "Sreeshankar K");
-    OverrideProperty("ro.infinity.soc", "Snapdragon 765G 5G");
-    OverrideProperty("ro.infinity.battery", "4115 mAh");
-    OverrideProperty("ro.infinity.display", "1080 x 2400, 90Hz");
-    OverrideProperty("ro.infinity.camera", "48MP + 8MP + 5MP + 2MP");
-    OverrideProperty("ro.product.marketname", "OnePlus Nord");
 }
