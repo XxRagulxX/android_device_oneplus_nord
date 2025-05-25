@@ -84,7 +84,7 @@ TARGET_FS_CONFIG_GEN := $(DEVICE_PATH)/config.fs
 DEVICE_FRAMEWORK_COMPATIBILITY_MATRIX_FILE := \
     $(DEVICE_PATH)/device_framework_matrix.xml \
     hardware/qcom-caf/common/vendor_framework_compatibility_matrix.xml \
-    vendor/infinity/config/device_framework_matrix.xml
+    vendor/lineage/config/device_framework_matrix.xml
 DEVICE_MATRIX_FILE := hardware/qcom-caf/common/compatibility_matrix.xml
 DEVICE_MANIFEST_FILE := $(DEVICE_PATH)/manifest.xml
 ODM_MANIFEST_FILES := $(DEVICE_PATH)/manifest_odm.xml
@@ -113,6 +113,8 @@ TARGET_KERNEL_SOURCE := kernel/oneplus/avicii
 TARGET_KERNEL_CONFIG := avicii_defconfig debugfs.config
 TARGET_KERNEL_CLANG_VERSION := r547379
 TARGET_KERNEL_CLANG_PATH := $(abspath .)/prebuilts/clang/host/linux-x86/clang-$(TARGET_KERNEL_CLANG_VERSION)
+TARGET_KERNEL_SOURCE := kernel/oneplus/sm7250
+TARGET_KERNEL_CONFIG := vendor/lito-perf_defconfig vendor/debugfs.config
 
 # Kernel Clang Flags
 KERNEL_CC := CC=clang
@@ -126,10 +128,10 @@ TARGET_BOARD_PLATFORM := lito
 BOARD_USES_METADATA_PARTITION := true
 
 # Partitions
--include vendor/infinity/config/BoardConfigReservedSize.mk
+-include vendor/lineage/config/BoardConfigReservedSize.mk
 BOARD_BOOTIMAGE_PARTITION_SIZE := 100663296
 BOARD_DTBOIMG_PARTITION_SIZE := 25165824
-BOARD_RECOVERYIMAGE_PARTITION_SIZE := 104857600
+BOARD_RECOVERYIMAGE_PARTITION_SIZE := 100663296
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 236009631744
 BOARD_ODMIMAGE_FILE_SYSTEM_TYPE := erofs
 BOARD_PRODUCTIMAGE_FILE_SYSTEM_TYPE := ext4

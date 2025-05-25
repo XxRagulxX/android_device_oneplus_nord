@@ -1,0 +1,10 @@
+[
+  {
+    "repository": "android_hardware_oplus",
+    "target_path": "hardware/oplus"
+  },
+  {
+    "repository": "android_kernel_oneplus_sm7250",
+    "target_path": "kernel/oneplus/sm7250"
+  }
+]
