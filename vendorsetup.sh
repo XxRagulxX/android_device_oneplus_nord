@@ -1,70 +1,113 @@
 #!/usr/bin/env bash
 
 # Copyright (C) 2024-2025 Android Open Source Project
-# Copyright (C) 2024-2025 Taher Hakim
 
 # Color code variables
-R="\033[1;31m";
-B="\033[1;34m";
-G="\033[1;32m";
-N="\033[0m"; # No Color
+R="\033[1;31m"
+B="\033[1;34m"
+G="\033[1;32m"
+N="\033[0m" # No Color
 
 # Environment variables
-SRC_DIR="${PWD}";
-CLANG_VERSION="r547379";
-CLANG_DIR="${SRC_DIR}/prebuilts/clang/host/linux-x86/clang-${CLANG_VERSION}";
-FW_DIR="${SRC_DIR}/vendor/oneplus/firmware";
-KERNEL_DIR="${SRC_DIR}/kernel/oneplus/sm7250";
-VENDOR_DIR="${SRC_DIR}/vendor/oneplus/avicii";
-APPS_DIR="${SRC_DIR}/vendor/oneplus/apps";
-CLANG_TAR="https://android.googlesource.com/platform/prebuilts/clang/host/linux-x86/+archive/refs/heads/main/clang-${CLANG_VERSION}.tar.gz";
-FW_REPO="https://github.com/TAHERHAKIM/android_firmware_oneplus_avicii";
-KERNEL_REPO="https://github.com/TAHERHAKIM/kernel_oneplus_avicii";
-VENDOR_REPO="https://github.com/TAHERHAKIM/android_vendor_oneplus_avicii_ooscam";
-APPS_REPO="https://github.com/TAHERHAKIM/oplus_camera_avicii";
+SRC_DIR="${PWD}"
+CLANG_VERSION="r547379"
+CLANG_DIR="${SRC_DIR}/prebuilts/clang/host/linux-x86/clang-${CLANG_VERSION}"
+FW_DIR="${SRC_DIR}/vendor/oneplus/firmware"
+KERNEL_DIR="${SRC_DIR}/kernel/oneplus/sm7250"
+VENDOR_DIR="${SRC_DIR}/vendor/oneplus/avicii"
+APPS_DIR="${SRC_DIR}/vendor/oneplus/apps"
+KERNELSU_DIR="${KERNEL_DIR}/KernelSU"
 
-# Dependencies
-DEPENDENCIES=( "FW" "KERNEL" "VENDOR" "APPS" );
+# Repo URLs and branches
+FW_REPO="https://github.com/XxRagulxX/android_firmware_oneplus_avicii"
+KERNEL_REPO="https://github.com/XxRagulxX/android_kernel_oneplus_sm7250"
+KERNEL_BRANCH="KernelSU-Next"
+VENDOR_REPO="https://github.com/XxRagulxX/android_vendor_oneplus_avicii_ooscam"
+APPS_REPO="https://github.com/XxRagulxX/oplus_camera_avicii"
 
-# Check if the dependency is available in the correct path
-function chk_dependencies() {
-echo -e "${B}Checking Dependencies...${N}";
-for DEPENDENCY in "${DEPENDENCIES[@]}"
-do
-	if [ ${DEPENDENCY} = "FW" ];
-	then	
-		DIR="${FW_DIR}";
-		REPO="${FW_REPO}";
-		NAME="Firmware Images";
-	elif [ ${DEPENDENCY} = "KERNEL" ];
-	then	
-		DIR="${KERNEL_DIR}";
-		REPO="${KERNEL_REPO}";
-		NAME="Kernel Source";
-	elif [ ${DEPENDENCY} = "VENDOR" ];
-	then	
-		DIR="${VENDOR_DIR}";
-		REPO="${VENDOR_REPO}";
-		NAME="Vendor Blobs";
-	elif [ ${DEPENDENCY} = "APPS" ];
-	then	
-		DIR="${APPS_DIR}";
-		REPO="${APPS_REPO}";
-		NAME="OnePlus Apps";
-	else
-		echo -e "${R}Invalid Dependency${N}";
-	fi
-	if [ -d ${DIR} ]; 
-	then
-		echo -e "${G}${NAME} found${N}";
-	else
-		echo -e "${R}${NAME} not found${N}";
-		echo -e "${B}Cloning ${NAME}...${N}";
-		bash -c "git clone ${REPO} --depth=1 ${DIR}";
-		echo -e "${G}Sucessfully cloned ${NAME}${N}";
-	fi
-done;
+# Dependencies: name, directory, repo variable, (optional) branch variable
+declare -a DEPENDENCIES=(
+  "FW|${FW_DIR}|FW_REPO"
+  "KERNEL|${KERNEL_DIR}|KERNEL_REPO|KERNEL_BRANCH"
+  "VENDOR|${VENDOR_DIR}|VENDOR_REPO"
+  "APPS|${APPS_DIR}|APPS_REPO"
+)
+
+chk_dependencies() {
+  echo -e "${B}Checking Dependencies...${N}"
+  for dep in "${DEPENDENCIES[@]}"; do
+    IFS='|' read -r NAME DIR REPO_VAR BRANCH_VAR <<< "$dep"
+    REPO_URL="${!REPO_VAR}"
+    if [[ -d "${DIR}" ]]; then
+      echo -e "${G}${NAME} found${N}"
+    else
+      echo -e "${R}${NAME} not found${N}"
+      echo -e "${B}Cloning ${NAME}...${N}"
+      if [[ -n "${BRANCH_VAR}" ]]; then
+        BRANCH_NAME="${!BRANCH_VAR}"
+        git clone --depth=1 -b "${BRANCH_NAME}" "${REPO_URL}" "${DIR}"
+      else
+        git clone --depth=1 "${REPO_URL}" "${DIR}"
+      fi
+      echo -e "${G}Successfully cloned ${NAME}${N}"
+    fi
+    # After kernel is cloned, handle KernelSU-Next
+    if [[ "${NAME}" == "KERNEL" ]]; then
+      install_kernelsu_next
+    fi
+  done
 }
 
-chk_dependencies;
+install_kernelsu_next() {
+  echo -e "${B}Checking for existing KernelSU-Next...${N}"
+  if [[ -d "${KERNELSU_DIR}" && -n "$(ls -A "${KERNELSU_DIR}")" ]]; then
+    echo -e "${G}KernelSU-Next already present. Skipping download.${N}"
+    manage_kernelsu_symlink
+    return 0
+  fi
 
+  echo -e "${B}Downloading latest KernelSU-Next release...${N}"
+  # Get latest release zip URL from GitHub API
+  LATEST_URL=$(curl -s https://api.github.com/repos/KernelSU-Next/KernelSU-Next/releases/latest | \
+    grep 'browser_download_url' | grep '.zip' | head -n 1 | cut -d '"' -f 4)
+  if [[ -z "${LATEST_URL}" ]]; then
+    echo -e "${R}Failed to fetch KernelSU-Next release URL.${N}"
+    return 1
+  fi
+  mkdir -p "${KERNELSU_DIR}"
+  TMP_ZIP="${KERNELSU_DIR}/kernelsu-next.zip"
+  curl -L "${LATEST_URL}" -o "${TMP_ZIP}"
+  unzip -oq "${TMP_ZIP}" -d "${KERNELSU_DIR}"
+  rm -f "${TMP_ZIP}"
+  echo -e "${G}KernelSU-Next extracted to ${KERNELSU_DIR}${N}"
+  manage_kernelsu_symlink
+}
+
+manage_kernelsu_symlink() {
+  echo -e "${B}Checking KernelSU symlink in drivers...${N}"
+  DRIVERS_DIR="${KERNEL_DIR}/drivers"
+  LINK_NAME="kernelsu"
+  TARGET="../KernelSU/kernel"
+
+  (
+    cd "${DRIVERS_DIR}" || { echo -e "${R}Failed to enter ${DRIVERS_DIR}${N}"; return 1; }
+    # Remove if not a symlink or incorrect
+    if [[ -L "${LINK_NAME}" ]]; then
+      CURRENT_TARGET=$(readlink "${LINK_NAME}")
+      if [[ "${CURRENT_TARGET}" == "${TARGET}" ]]; then
+        echo -e "${G}KernelSU symlink is correct.${N}"
+        return
+      else
+        echo -e "${R}KernelSU symlink incorrect. Fixing...${N}"
+        rm -f "${LINK_NAME}"
+      fi
+    elif [[ -e "${LINK_NAME}" ]]; then
+      echo -e "${R}KernelSU path exists but is not a symlink. Removing...${N}"
+      rm -rf "${LINK_NAME}"
+    fi
+    ln -sf "${TARGET}" "${LINK_NAME}"
+    echo -e "${G}KernelSU symlink created: ${DRIVERS_DIR}/${LINK_NAME} -> ${TARGET}${N}"
+  )
+}
+
+chk_dependencies
