@@ -51,9 +51,6 @@ TARGET_PROVIDES_AUDIO_EXTNS := true
 # Bootloader
 TARGET_BOOTLOADER_BOARD_NAME := lito
 
-# Camera
-TARGET_CAMERA_PACKAGE_NAME := com.oneplus.camera
-
 # Properties
 TARGET_ODM_PROP += $(DEVICE_PATH)/odm.prop
 TARGET_PRODUCT_PROP += $(DEVICE_PATH)/product.prop
