@@ -148,7 +148,7 @@ VENDOR_SECURITY_PATCH := 2023-12-05
 # SEPolicy
 SELINUX_IGNORE_NEVERALLOWS := true
 include device/qcom/sepolicy_vndr/SEPolicy.mk
-include device/oneplus/avicii/sepolicy/qti/SEPolicy.mk
+include hardware/oplus/sepolicy/qti/SEPolicy.mk
 
 # Verified Boot
 BOARD_AVB_ENABLE := true

@@ -1,1 +1,0 @@
-create_dir_file(vendor_qti_init_shell, vendor_persist_wcnss_service_file)
