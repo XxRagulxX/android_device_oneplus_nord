@@ -292,14 +292,15 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/com.android.nfc_extras.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/com.android.nfc_extras.xml
 
 # Overlays
+$(call inherit-product, hardware/oplus/overlay/generic/generic.mk)
+$(call inherit-product, hardware/oplus/overlay/qssi/qssi.mk)
+
 DEVICE_PACKAGE_OVERLAYS += \
     $(LOCAL_PATH)/overlay-lineage
 
 PRODUCT_ENFORCE_RRO_TARGETS := *
 PRODUCT_PACKAGES += \
     CarrierConfigResCommon \
-    FrameworksResCommon \
-    FrameworksResGeneric \
     FrameworksResTarget \
     OPlusFrameworksResCommon \
     OPlusFrameworksResTarget \
@@ -308,11 +309,6 @@ PRODUCT_PACKAGES += \
     OPlusSettingsResTarget \
     OPlusSystemUIResCommon \
     OPlusSystemUIResTarget \
-    OPlusWifiResCommon \
-    SettingsProviderResGeneric \
-    SystemUIResCommon \
-    TelephonyResCommon \
-    WifiResCommon \
     WifiResTarget
     
 # Partitions
@@ -377,7 +373,8 @@ PRODUCT_SHIPPING_API_LEVEL := 29
 
 # Soong namespaces
 PRODUCT_SOONG_NAMESPACES += \
-    $(LOCAL_PATH)
+    $(LOCAL_PATH) \
+    hardware/oplus
 
 # Telephony
 PRODUCT_PACKAGES += \
@@ -406,9 +403,13 @@ PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.telephony.ims.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.telephony.ims.xml \
     frameworks/native/data/etc/android.software.sip.voip.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.sip.voip.xml
 
+$(call inherit-product, hardware/oplus/oplus-fwk/oplus-fwk.mk)
+
 # Touch
 PRODUCT_PACKAGES += \
     vendor.lineage.touch-service.oplus
+
+$(call soong_config_set,OPLUS_LINEAGE_TOUCH_HAL,INCLUDE_DIR,$(LOCAL_PATH)/touch/include)
 
 # Update engine
 PRODUCT_PACKAGES += \
