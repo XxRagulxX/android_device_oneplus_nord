@@ -175,6 +175,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.fingerprint.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.fingerprint.xml
 
+$(call soong_config_set,surfaceflinger,udfps_lib,//hardware/oplus:libudfps_extension.oplus)
+
 # Gatekeeper
 PRODUCT_PACKAGES += \
     android.hardware.gatekeeper@1.0.vendor
@@ -305,6 +307,7 @@ PRODUCT_PACKAGES += \
     OPlusFrameworksResCommon \
     OPlusFrameworksResTarget \
     OPlusSettingsProviderResTarget \
+    NcmTetheringOverlay \
     OPlusSettingsResCommon \
     OPlusSettingsResTarget \
     OPlusSystemUIResCommon \
@@ -422,7 +425,9 @@ PRODUCT_PACKAGES_DEBUG += \
 
 # USB
 PRODUCT_PACKAGES += \
-    android.hardware.usb-service.qti
+    android.hardware.usb-service.qti \
+    android.hardware.usb.gadget-service.qti \
+    oplus_usb_compositions.conf
 
 PRODUCT_SOONG_NAMESPACES += \
     vendor/qcom/opensource/usb/etc
