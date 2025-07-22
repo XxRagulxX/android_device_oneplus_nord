@@ -1,6 +1,4 @@
-#!/usr/bin/env bash
-
-# Copyright (C) 2024-2025 Android Open Source Project
+# vendorsetup.sh - Device-specific setup script for OnePlus Avicii
 
 # Color code variables
 R="\033[1;31m"
@@ -10,8 +8,6 @@ N="\033[0m" # No Color
 
 # Environment variables
 SRC_DIR="${PWD}"
-CLANG_VERSION="r547379"
-CLANG_DIR="${SRC_DIR}/prebuilts/clang/host/linux-x86/clang-${CLANG_VERSION}"
 FW_DIR="${SRC_DIR}/vendor/oneplus/firmware"
 KERNEL_DIR="${SRC_DIR}/kernel/oneplus/sm7250"
 VENDOR_DIR="${SRC_DIR}/vendor/oneplus/avicii"
@@ -33,7 +29,7 @@ declare -a DEPENDENCIES=(
   "APPS|${APPS_DIR}|APPS_REPO"
 )
 
-chk_dependencies() {
+function chk_dependencies() {
   echo -e "${B}Checking Dependencies...${N}"
   for dep in "${DEPENDENCIES[@]}"; do
     IFS='|' read -r NAME DIR REPO_VAR BRANCH_VAR <<< "$dep"
@@ -58,7 +54,7 @@ chk_dependencies() {
   done
 }
 
-install_kernelsu_next() {
+function install_kernelsu_next() {
   echo -e "${B}Checking for existing KernelSU-Next...${N}"
   if [[ -d "${KERNELSU_DIR}" && -n "$(ls -A "${KERNELSU_DIR}")" ]]; then
     echo -e "${G}KernelSU-Next already present. Skipping download.${N}"
@@ -83,7 +79,7 @@ install_kernelsu_next() {
   manage_kernelsu_symlink
 }
 
-manage_kernelsu_symlink() {
+function manage_kernelsu_symlink() {
   echo -e "${B}Checking KernelSU symlink in drivers...${N}"
   DRIVERS_DIR="${KERNEL_DIR}/drivers"
   LINK_NAME="kernelsu"
@@ -109,5 +105,3 @@ manage_kernelsu_symlink() {
     echo -e "${G}KernelSU symlink created: ${DRIVERS_DIR}/${LINK_NAME} -> ${TARGET}${N}"
   )
 }
-
-chk_dependencies
